@@ -56,3 +56,50 @@ export const saveAppointment = async (req, res) => {
     }); 
   }
 };
+
+export const getAppointments = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const appointments = await Appointment.find({ user: userId }).populate("pet");
+    return res.status(200).json({ success: true, appointments });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false,
+       message: "Error al obtener las citas", error });
+  }
+};
+
+export const updateAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    const updatedData = req.body;
+    const appointment = await Appointment.findByIdAndUpdate(appointmentId, updatedData, { new: true });
+    if (!appointment) {
+      return res.status(404).json({ success: false, 
+        message: "Cita no encontrada" });
+    }
+    return res.status(200).json({ success: true, 
+      message: "Cita actualizada", appointment });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, 
+      message: "Error al actualizar la cita", error });
+  }
+};
+
+export const cancelAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    const appointment = await Appointment.findByIdAndDelete(appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ success: false, 
+        message: "Cita no encontrada" });
+    }
+    return res.status(200).json({ success: true, 
+      message: "Cita cancelada" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, 
+      message: "Error al cancelar la cita", error });
+  }
+};
